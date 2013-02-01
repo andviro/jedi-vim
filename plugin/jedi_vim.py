@@ -24,8 +24,7 @@ class PythonToVimStr(unicode):
         # support is pretty bad. don't ask how I came up with this... It just
         # works...
         # It seems to be related to that bug: http://bugs.python.org/issue5876
-        s = self.encode('UTF-8')
-        return '"%s"' % s.replace('\\', '\\\\').replace('"', r'\"')
+        return '"%s"' % re.escape(self)
 
 
 def echo_highlight(msg):
@@ -35,13 +34,13 @@ def echo_highlight(msg):
 def get_script(source=None, column=None):
     jedi.settings.additional_dynamic_modules = [b.name for b in vim.buffers
                             if b.name is not None and b.name.endswith('.py')]
+    encoding = vim.eval('&encoding')
     if source is None:
-        source = '\n'.join(vim.current.buffer)
+        source = '\n'.join([unicode(x, encoding) for x in vim.current.buffer])
     row = vim.current.window.cursor[0]
     if column is None:
         column = vim.current.window.cursor[1]
     buf_path = vim.current.buffer.name
-    encoding = vim.eval('&encoding')
     return jedi.Script(source, row, column, buf_path, encoding)
 
 
@@ -173,7 +172,7 @@ def show_pydoc():
                     else '|No Docstring for %s|' % d for d in definitions]
         text = ('\n' + '-' * 79 + '\n').join(docs)
         vim.command('let l:doc = %s' % repr(PythonToVimStr(text)))
-        vim.command('let l:doc_lines = %s' % len(text.split('\n')))
+        vim.command('let l:doc_lines = %s' % len(text.splitlines()))
 
 
 def clear_func_def():
@@ -230,7 +229,7 @@ def show_func_def(call_def=None, completion_lines=0):
 
         # Need to decode it with utf8, because vim returns always a python 2
         # string even if it is unicode.
-        e = vim.eval('g:jedi#function_definition_escape').decode('UTF-8')
+        e = vim.eval('g:jedi#function_definition_escape')
         # replace line before with cursor
         regex = "xjedi=%sx%sxjedix".replace('x', e)
 

@@ -58,8 +58,10 @@ function! jedi#show_pydoc()
     setlocal noswapfile
     setlocal buftype=nofile
     silent normal! ggdG
-    silent $put=l:doc
-    silent normal! 1Gdd
+    py enc = vim.eval('&encoding')
+    py doc = unicode(vim.eval('l:doc'), 'utf-8').encode(enc)
+    py docs = doc.splitlines()
+    py if len(docs): vim.current.buffer.append(docs, 0)
     setlocal nomodifiable
     setlocal nomodified
     setlocal filetype=rst

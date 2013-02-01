@@ -5,6 +5,7 @@
 " This part of the software is just the vim interface. The main source code
 " lies in the python files around it.
 
+scriptencoding utf-8
 if !has('python') && !has('python3')
     if !exists("g:jedi#squelch_py_warning")
         echomsg "Error: Required vim compiled with +python"
@@ -33,7 +34,7 @@ let s:settings = {
     \ 'popup_on_dot': 1,
     \ 'pydoc': "'K'",
     \ 'show_function_definition': 1,
-    \ 'function_definition_escape': "'≡'",
+    \ 'function_definition_escape': "''",
     \ 'auto_close_doc': 1,
     \ 'popup_select_first': 1
 \ }
